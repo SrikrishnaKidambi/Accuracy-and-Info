@@ -1,0 +1,7 @@
+Install ollama
+Install deepseek-r1:8b (I already have it in my machine)
+(Recommended to install deepseek coder)
+Install the python dependency.
+(pip install ollama argparse)
+If we run the above command then two dependencies related to python are downloaded the first one ollama is to call the llm locally and the second one argparse to pass filename in the command itself instead of writing it seperately in the code.
+Now we can write the core logic python script
