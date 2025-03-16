@@ -2,8 +2,11 @@ import argparse
 import time
 import ollama
 import tkinter as tk
+import markdown2
 from tkinter import filedialog, messagebox, scrolledtext
 from fpdf import FPDF
+import pdfkit
+import markdown_pdf
 
 def read_code(file_path):
     """Reads the contents of a code file."""
@@ -24,6 +27,7 @@ def genrate_documentation(code):
     - Any important notes or assumptions.
     - Dependencies between functions.
     - Dependencies with other files.
+    - I need the documentation in markdown.
     Do NOT include any intermediate reasoning or <think> blocks.
     """
     print("Generating Documentation")
@@ -45,25 +49,28 @@ def clear_results():
     result_text.delete(1.0, tk.END)
 
 def save_to_pdf():
-    """Save the generated documentation to a pdf file."""
-    content=result_text.get(1.0,tk.END).strip()
+    """Save the generated Markdown documentation to a formatted PDF."""
+    content = result_text.get(1.0, tk.END).strip()
     if not content:
-        messagebox.showwarning("Warning","No documentation to save!")
+        messagebox.showwarning("Warning", "No documentation to save!")
         return
-    file_path=filedialog.asksaveasfilename(
-        defaultextension="pdf",
-        filetypes=[("PDF Files","*.pdf")],
+
+    file_path = filedialog.asksaveasfilename(
+        defaultextension=".pdf",
+        filetypes=[("PDF Files", "*.pdf")],
         title="Save PDF As"
     )
+
     if file_path:
         try:
-            pdf = FPDF()
-            pdf.set_auto_page_break(auto=True, margin=15)
-            pdf.add_page()
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(0, 10, content)
-            pdf.output(file_path)
-            messagebox.showinfo("Success", "Documentation saved successfully!")
+            # converts markdown to html
+            html_content=markdown2.markdown(content)
+
+            # convert html to pdf using weasyprint
+            config= pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+             # Convert HTML to PDF using pdfkit
+            pdfkit.from_string(html_content, file_path, configuration=config)
+            messagebox.showinfo("Success", "Documentation saved successfully as a formatted PDF!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save PDF: {e}")
 def open_file():
